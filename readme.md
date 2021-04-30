@@ -12,3 +12,9 @@ v run .
 ```
 
 Use the left and right arrow keys to move the robot. Press `c` to reset the demo, press `Esc` to quit.
+
+I also experimented with some tests:
+```bash
+cd localization/loc
+v -stats test .
+```
