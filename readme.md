@@ -3,7 +3,7 @@
 Implementation of a histogram filter as explained in Lesson 1 in the Udacity course [Artificial Intelligence for Robotics](https://www.udacity.com/course/artificial-intelligence-for-robotics--cs373).
 
 
-![localization](localization.gif)
+![localization](assets/localization.gif)
 
 With [v](vlang.io) installed, run it using:
 ```bash
