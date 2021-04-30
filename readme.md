@@ -18,3 +18,8 @@ I also experimented with some tests:
 cd localization/loc
 v -stats test .
 ```
+
+Code formatting:
+```
+v -w fmt <filename>
+```

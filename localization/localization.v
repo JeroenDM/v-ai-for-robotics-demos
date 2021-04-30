@@ -64,7 +64,58 @@ fn main() {
 		height: window_height
 		gg: 0
 	}
-	game.gg = gg.new_context(
+
+	// I have no idea why this code works...
+	// I both return a local variable by reference inside new_default_window
+	// And there is a circular reference between Game and gg.Context
+	// Maybe because it is heap allocated and I pass a pointer
+	// the lifetime and clean responsibility moves to game.gg?
+	game.gg = new_default_window(mut game)
+
+	println('world: $game.world')
+	println('p: $game.p')
+
+	println('Starting the simulation..')
+	game.gg.run()
+}
+
+///////////////////////////////////////
+// USE LOC MODULE FOR LOCALIZATION
+///////////////////////////////////////
+fn (mut game Game) init_game() {
+	// initialize probabilities, robot position, ...
+	game.p = []f64{len: 5, init: 1 / f64(5)}
+	game.position = 0
+	game.step = 0
+
+	// make sure the bars are updated when the simulation is cleared
+	// when pressing 'c'
+	game.update_bars()
+}
+
+fn (mut game Game) move(u int) bool {
+	// exact measurement at the current position in the game
+	z := game.world[game.position]
+
+	// sense and move cycle that updated position probabilities
+	game.p = loc.sense(game.p, game.world, z)
+	game.p = loc.move(game.p, u)
+
+	// move the robot without noise
+	game.position = loc.wrap(game.position + u, game.n)
+
+	// simulation step counter just to display some dynamic text
+	game.step += 1
+
+	// not sure what this is used for
+	return true
+}
+
+///////////////////////////////////////
+// VISUALIZATION
+///////////////////////////////////////
+fn new_default_window(mut game Game) &gg.Context {
+	return gg.new_context(
 		width: window_width
 		height: window_height
 		font_size: 20
@@ -77,19 +128,12 @@ fn main() {
 		bg_color: theme.background
 		font_path: gg.system_font_path()
 	)
-
-	println('world: $game.world')
-	println('p: $game.p')
-
-	println('Starting the simulation..')
-	game.gg.run()
 }
 
-///////////////////////////////////////
-// VISUALIZATION
-///////////////////////////////////////
 fn frame(mut game Game) {
 	game.gg.begin()
+
+	game.update_bars()
 
 	// draw the world with obstacles and empty space
 	// this should be done in some kind of init function that I can't get to work
@@ -139,32 +183,8 @@ fn (mut game Game) key_down(key gg.KeyCode) {
 	}
 }
 
-///////////////////////////////////////
-// APP CODE
-///////////////////////////////////////
-fn (mut game Game) init_game() {
-	// initialize probabilities, robot position, ...
-	game.p = []f64{len: 5, init: 1 / f64(5)}
-	game.position = 0
-	game.step = 0
-
-	// make sure the bars are updated when the simulation is cleared
-	// when pressing 'c'
+fn (mut game Game) update_bars() {
 	for i, pi in game.p {
 		game.bar_h[i] = int(pi * 100)
 	}
-}
-
-fn (mut game Game) move(u int) bool {
-	z := game.world[game.position]
-	game.p = loc.sense(game.p, game.world, z)
-	game.p = loc.move(game.p, u)
-
-	for i, pi in game.p {
-		game.bar_h[i] = int(pi * 100)
-	}
-
-	game.position = loc.wrap(game.position + u, game.n)
-	game.step += 1
-	return true
 }
