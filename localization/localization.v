@@ -126,7 +126,6 @@ fn new_default_window(mut game Game) &gg.Context {
 		frame_fn: frame
 		event_fn: on_event
 		bg_color: theme.background
-		font_path: gg.system_font_path()
 	)
 }
 
@@ -142,16 +141,16 @@ fn frame(mut game Game) {
 			.obstacle { theme.obstacle }
 			else { theme.empty }
 		}
-		game.gg.draw_rect(bar_width * i, 0, bar_width, 20, c)
+		game.gg.draw_rect_filled(bar_width * i, 0, bar_width, 20, c)
 	}
 
 	// draw the probability bars
 	for i, h in game.bar_h {
-		game.gg.draw_rect(bar_width * i, game.height / 2 - h, bar_width, h, theme.bars)
+		game.gg.draw_rect_filled(bar_width * i, game.height / 2 - h, bar_width, h, theme.bars)
 	}
 
 	// draw the robot and some text
-	game.gg.draw_rect(bar_width * game.position, game.height - robot_height, bar_width,
+	game.gg.draw_rect_filled(bar_width * game.position, game.height - robot_height, bar_width,
 		robot_height, theme.robot)
 	game.gg.draw_text_def(10, game.height - 20, 'Iteration: $game.step')
 
